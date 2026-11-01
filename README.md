@@ -8,6 +8,8 @@ Urutan jalur = **komposisi**. Membaca ulang isi paket = **invers**.
 
 ## Cara membuka
 
+**Mainkan online (tanpa download):** https://arbanyvolt.github.io/Game-Matematika/
+
 **Klik dua kali `index.html`.** Tidak perlu install, tidak perlu server.
 
 - Tanpa internet pun jalan: font otomatis memakai cadangan sistem, seluruh grafis
