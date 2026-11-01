@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STASIUN TRANSIT — Komposisi &amp; Invers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080c14; --bg2:#0d1422; --panel:#111a2c; --panel2:#16223a;
+  --line:#233350; --text:#e8eef8; --muted:#8fa3c4; --dim:#5f7391;
+  --dimtext:#6b7f9e;
+  --f:#ff5f5f; --g:#ffd24a; --h:#a97bff; --k:#4ade80; --cy:#ffd24a; --gold:#ffcc55;
+  --mono:'VT323',ui-monospace,Consolas,monospace;
+  --pixel:'Press Start 2P','VT323',ui-monospace,monospace;
+  --sans:'VT323',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg) fixed;
+  color:var(--text); font-family:var(--sans); font-size:16px;
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.hidden{display:none !important}
+
+/* ============ OVERLAY / DIALOG ============ */
+.overlay{
+  position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+  background:rgba(4,7,13,.9);padding:18px;
+}
+.overlay.soft{background:rgba(4,7,13,.45);backdrop-filter:none}
+.dlg{
+  width:min(880px,96vw);max-height:92vh;overflow:auto;
+  border-style:solid;border-width:16px;
+  border-image:url('aset/panel_brown.png') 20 fill / 16px stretch;
+  image-rendering:pixelated;
+  padding:10px 14px;box-shadow:0 24px 70px rgba(0,0,0,.6);
+}
+.dlg.wide{width:min(1080px,96vw)}
+.dlg h1{font-size:30px;line-height:1.15;letter-spacing:.5px}
+.dlg h2{font-family:var(--pixel);font-size:13px;margin-bottom:8px}
+.dlg p{color:#f0e6d2;line-height:1.62;margin:9px 0}
+.dlg .small{font-size:17px;color:#c9b989}
+.tag{display:inline-block;font-family:var(--pixel);font-size:8px;letter-spacing:0;
+  text-transform:uppercase;color:var(--gold);border:1px solid #4a3c1b;background:#231b0c;
+  padding:3px 9px;border-radius:20px;margin-bottom:12px}
+/* wajah NPC ala visual novel */
+.speaker{display:flex;gap:16px;align-items:flex-start}
+.face{
+  flex:0 0 96px;height:96px;border-radius:14px;border:1px solid var(--line);
+  background:#0e1728;display:flex;align-items:center;justify-content:center;
+  font-size:44px;position:relative;overflow:hidden;
+}
+.bubble{flex:1;min-width:0}
+.who{font-family:var(--mono);font-size:18px;letter-spacing:1px;color:var(--cy);text-transform:uppercase}
+.say{font-size:21px;line-height:1.5;margin-top:5px;color:#fff3df}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.btn{
+  border:none;background:url('aset/buttonLong_beige.png') center/100% 100% no-repeat;
+  image-rendering:pixelated;color:#3a2a18;padding:12px 20px;
+  font-size:20px;min-height:48px;text-shadow:0 1px 0 rgba(255,255,255,.45);
+}
+.btn:hover{filter:brightness(1.1)}
+.btn:active{background-image:url('aset/buttonLong_beige_pressed.png')}
+.btn:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.btn.primary{background-image:url('aset/buttonLong_blue.png');color:#eaf3ff;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.btn.primary:active{background-image:url('aset/buttonLong_blue_pressed.png')}
+.btn.gold{background-image:url('aset/buttonLong_brown.png');color:#ffe9c9;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.btn.gold:active{background-image:url('aset/buttonLong_brown_pressed.png')}
+.btn.ghost{background:none;color:#9fb4d4;text-shadow:none}
+.btn.ghost:active{background:none}
+.btn.sm{padding:4px 14px;font-size:17px;min-height:36px}
+
+/* ============ HUD ============ */
+#app{height:100%;display:flex;flex-direction:column}
+.hud{
+  display:flex;align-items:center;gap:14px;padding:9px 16px;
+  background:linear-gradient(180deg,#0f1a2e,#0b1322);border-bottom:1px solid var(--line);
+  font-family:var(--mono);flex-wrap:wrap;
+}
+.hud .cell{display:flex;flex-direction:column;gap:1px;min-width:0}
+.hud .lbl{font-family:var(--mono);font-size:15px;letter-spacing:1px;color:var(--dimtext);text-transform:uppercase}
+.hud .val{font-family:var(--pixel);font-size:13px;color:#fff;line-height:1.4}
+.hud .val.cap{font-size:11px;color:var(--gold)}
+.hud .val.sm{font-size:11px;color:var(--muted)}
+.hud .sep{width:1px;height:34px;background:var(--line)}
+.hud .grow{flex:1}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--pixel);font-size:9px;
+  border:7px solid transparent;border-image:url('aset/panelInset_brown.png') 20 fill / 7px stretch;
+  image-rendering:pixelated;padding:1px 8px;color:#ffd24a;
+}
+.bar{height:16px;margin:0 10px;
+  background:url('aset/barBack_horizontalLeft.png') left center/16px 16px no-repeat,
+             url('aset/barBack_horizontalRight.png') right center/16px 16px no-repeat,
+             url('aset/barBack_horizontalMid.png') center/16px 16px repeat-x;
+  image-rendering:pixelated}
+.bar>i{display:block;height:100%;width:0;
+  background-color:#3a9ac8;
+  background-image:url('aset/barBlue_horizontalLeft.png'),url('aset/barBlue_horizontalRight.png'),url('aset/barBlue_horizontalMid.png');
+  background-position:left center,right center,center;
+  background-size:16px 16px,16px 16px,16px 16px;
+  background-repeat:no-repeat,no-repeat,repeat-x;
+  image-rendering:pixelated}
+
+/* ============ PANGGUNG ============ */
+.stage{flex:1;display:flex;position:relative;overflow:hidden;background:
+  linear-gradient(180deg,#0a1220 0%,#0b1526 55%,#0d1a2e 100%)}
+#mapbox{position:relative;flex:1 1 auto;min-width:0;overflow:hidden}
+#world{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;
+  cursor:url('aset/cursorHand_blue.png') 7 3, pointer;touch-action:none}
+/* scanline CRT sangat halus di atas dunia (tidak ikut terscale canvas) */
+#mapbox::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.06) 0 1px,transparent 1px 3px)}
+.train{position:absolute;transition:none;pointer-events:none}
+.actor{
+  position:absolute;width:26px;height:34px;margin:-34px 0 0 -13px;pointer-events:none;
+  transition:transform .45s cubic-bezier(.3,.9,.3,1);
+}
+.actor .head{width:14px;height:14px;border-radius:50%;background:#ffd9a8;margin:0 auto;
+  border:2px solid #7a5c3a}
+.actor .body{width:22px;height:16px;border-radius:5px 5px 3px 3px;background:var(--cy);margin:-2px auto 0}
+.actor .bag{width:9px;height:9px;border-radius:2px;background:var(--gold);position:absolute;
+  right:-3px;top:16px}
+.pulse{animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 0 rgba(56,189,248,0))}50%{filter:drop-shadow(0 0 10px rgba(56,189,248,.9))}}
+
+.hintbar{
+  position:absolute;left:50%;bottom:12px;transform:translateX(-50%);
+  background:rgba(9,15,26,.9);border:1px solid var(--line);border-radius:10px;
+  padding:8px 14px;font-family:var(--mono);font-size:17px;color:var(--muted);
+  max-width:92%;text-align:center;
+}
+.bigact{
+  position:absolute;right:18px;bottom:18px;z-index:12;
+}
+.bigact .btn{font-size:22px;padding:16px 24px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+
+/* ============ PANEL SOAL (samping, peta tetap terlihat) ============ */
+#qwrap{position:relative;flex:0 0 auto;width:min(560px,44vw);display:none;overflow:auto;
+  border-left:1px solid var(--line);background:linear-gradient(180deg,#141f35,#0f1827)}
+#qwrap.on{display:block}
+.qcard{width:100%;min-height:100%;padding:16px 18px 22px}
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.qhead .who{color:var(--gold)}
+.qtext{font-family:var(--mono);font-size:27px;line-height:1.45;color:#fff;white-space:pre-line}
+.qsub{font-size:18px;color:var(--muted);margin-top:8px}
+.qrow{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+#qin{
+  flex:1;min-width:220px;font-family:var(--mono);font-size:29px;padding:8px 12px;
+  border:9px solid transparent;border-image:url('aset/panelInset_beige.png') 20 fill / 9px stretch;
+  image-rendering:pixelated;border-radius:0;color:#3a2a18;letter-spacing:1px;font-weight:700;
+}
+#qin::placeholder{color:#9a8a70;font-weight:400}
+#qin:focus{outline:none;box-shadow:0 0 0 3px rgba(56,189,248,.35)}
+.pad{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pad button{
+  font-family:var(--mono);font-size:21px;min-width:52px;padding:9px 0;border:none;border-radius:8px;
+  background:url('aset/buttonSquare_beige.png') center/100% 100% no-repeat;
+  image-rendering:pixelated;color:#3a2a18;font-weight:800;
+}
+.pad button:hover{filter:brightness(1.1)}
+.pad button:active{background-image:url('aset/buttonSquare_beige_pressed.png')}
+.pad button.ok{min-width:92px;background-image:url('aset/buttonSquare_blue.png');color:#eaf3ff;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.pad button.ok:active{background-image:url('aset/buttonSquare_blue_pressed.png')}
+.pad button.warn{color:#8a3a2a}
+.fb{margin-top:12px;padding:11px 13px;border-radius:10px;font-size:19px;line-height:1.5;display:none}
+.fb.bad{display:block;background:#2a1512;border:1px solid #7a3a2a;color:#ffc9b6}
+.fb.good{display:block;background:#10261a;border:1px solid #2f6b45;color:#c6f0d4}
+.fb.bad::before{content:"";display:inline-block;width:20px;height:19px;margin-right:8px;
+  background:url('aset/iconCross_brown.png') center/contain no-repeat;image-rendering:pixelated;vertical-align:-3px}
+.fb.good::before{content:"";display:inline-block;width:20px;height:19px;margin-right:8px;
+  background:url('aset/iconCheck_blue.png') center/contain no-repeat;image-rendering:pixelated;vertical-align:-3px}
+.fb .calc{font-family:var(--mono);font-size:18px;display:block;margin-top:6px;color:#eaf7ef}
+.fb .ttl{font-weight:800;letter-spacing:.4px}
+.tries{font-family:var(--mono);font-size:16px;color:var(--dimtext)}
+
+/* list cap di tiket */
+.caps{display:flex;gap:6px;align-items:center}
+.caps i{width:13px;height:13px;border-radius:50%;border:2px solid var(--line);display:block}
+.caps i.on{border-color:currentColor}
+
+/* tabel penerimaan akhir */
+.table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:18px;margin-top:8px}
+.table th,.table td{border:1px solid var(--line);padding:7px 10px;text-align:left}
+.table th{color:var(--muted);font-weight:400;font-size:14px}
+.table td.ok{color:#8ef0b5}
+.table td.no{color:#ff9a8a}
+.note{border:10px solid transparent;border-image:url('aset/panelInset_brown.png') 20 fill / 10px stretch;
+  image-rendering:pixelated;border-radius:0;padding:6px 10px;
+  font-family:var(--mono);font-size:18px;color:#f3e9d8;margin-top:12px;white-space:pre-line}
+.board{border-left:1px solid var(--line);padding-left:12px;margin:10px 0}
+.board .who{color:var(--gold)}
+.board .say{font-size:19px;color:#e6eefa;margin-top:3px}
+.list{margin:8px 0 0 18px;color:#c9d7ec}
+.list li{margin:5px 0;line-height:1.4;font-size:19px}
+.rutas{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.station-badge{
+  font-family:var(--mono);font-size:17px;border:1px solid var(--line);border-radius:9px;
+  padding:6px 10px;color:var(--muted);background:#0e1728
+}
+.menu{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
+  background:var(--bg)}
+/* motif identitas: garis pengaman stasiun (DESIGN.md) */
+.menu::before{content:"";position:absolute;top:0;left:0;right:0;height:8px;
+  background:repeating-linear-gradient(-45deg,#ffd24a 0 14px,#2a2438 14px 28px)}
+.menu .inner{text-align:center;width:min(760px,94vw)}
+.menu .logo{font-family:var(--pixel);font-size:clamp(20px,4vw,38px);letter-spacing:2px;color:#fff}
+.menu .sub{color:var(--cy);font-family:var(--pixel);letter-spacing:1px;margin-top:10px;font-size:10px}
+.menu .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.kv{font-family:var(--mono);font-size:18px;color:var(--muted);margin-top:22px}
+.kv b{color:var(--gold)}
+.credit{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:17px;color:#8fa3c4}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+@media (max-width:720px){
+  .hud .val{font-size:10px}.qtext{font-size:22px}.face{flex-basis:64px;height:64px;font-size:30px}
+  .actor{transform:scale(.9)}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= GAME ================= -->
+<div id="app" class="hidden">
+  <div class="hud">
+    <div class="cell" style="min-width:150px"><div class="lbl">Stasiun</div><div class="val" id="hStation">—</div></div>
+    <div class="sep"></div>
+    <div class="cell"><div class="lbl">Kode Ruang</div><div class="val" id="hCode">—</div></div>
+    <div class="sep"></div>
+    <div class="cell" style="min-width:130px"><div class="lbl">Cap Terakhir</div><div class="val cap" id="hCap">·</div></div>
+    <div class="sep"></div>
+    <div class="cell"><div class="lbl">Senyum</div><div class="val" id="hSenyum" style="color:#ff8aa0">·</div></div>
+    <div class="sep"></div>
+    <div class="cell"><div class="lbl">Tiket</div><div class="caps" id="hCaps"></div></div>
+    <div class="grow"></div>
+    <div class="chip" id="hRute" title="Kode rute: pakai kode ini untuk memainkan soal yang sama">RUTE —</div>
+    <button class="btn sm ghost" id="btnSuara">SUARA: AKTIF</button>
+    <button class="btn sm ghost" id="btnMenu">☰ MENU</button>
+  </div>
+  <div class="bar"><i id="hProg"></i></div>
+
+  <div class="stage" id="stage">
+    <div id="mapbox">
+      <canvas id="world"></canvas>
+      <div class="hintbar" id="hintbar">…</div>
+    </div>
+    <div id="qwrap"></div>
+  </div>
+</div>
+
+<!-- ================= MENU UTAMA ================= -->
+<div class="menu" id="menu">
+  <div class="inner">
+    <div class="logo">STASIUN TRANSIT</div>
+    <div class="sub">FUNGSI KOMPOSISI &amp; INVERS</div>
+    <div class="row" style="margin-top:34px">
+      <button class="btn primary" id="mStart" style="font-size:19px;padding:16px 30px">▶ MULAI SHIFT MALAM</button>
+      <button class="btn" id="mShort">MODE SINGKAT (2 JALUR)</button>
+      <button class="btn" id="mHow">CARA BERMAIN</button>
+      <button class="btn" id="mBoard">PAPAN RUMUS</button>
+    </div>
+    <div class="kv">Kode rute hari ini: <b id="mRute">—</b> &nbsp;•&nbsp; bisa dimainkan ulang, soal akan sama</div>
+    <div class="rutas" id="mCaps" style="justify-content:center;margin-top:18px"></div>
+    <div class="credit">Tema 6 — peta jalur sebagai notasi komposisi fungsi</div>
+  </div>
+</div>
+
+<!-- ================= OVERLAY DINAMIS ================= -->
+<div id="fade" style="position:fixed;inset:0;background:#05070d;opacity:0;pointer-events:none;transition:opacity .7s;z-index:80"></div>
+<div class="overlay hidden" id="ov">
+  <div class="dlg" id="ovBody"></div>
+</div>
+
+<script src="game.js?v=17"></script>
+<script src="pixel.js?v=17"></script>
+<script src="audio.js?v=17"></script>
+<script src="asetGB.js?v=17"></script>
+<script src="world.js?v=17"></script>
+<script src="aksi.world.js?v=17"></script>
+</body>
+</html>
