@@ -8,7 +8,7 @@ Urutan jalur = **komposisi**. Membaca ulang isi paket = **invers**.
 
 ## Cara membuka
 
-**Mainkan online (tanpa download):** https://arbanyvolt.github.io/Game-Matematika/
+**Mainkan online (tanpa download):** (https://stasiun-transit.vercel.app/)
 
 **Klik dua kali `index.html`.** Tidak perlu install, tidak perlu server.
 
